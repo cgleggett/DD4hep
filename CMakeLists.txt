@@ -79,6 +79,7 @@ option(DD4HEP_USE_HEPMC3        "Build hepmc3 extensions"                       
 option(DD4HEP_USE_TBB           "Build features that require TBB"               OFF)
 option(DD4HEP_LOAD_ASSIMP       "Download and build ASSIMP from github"         OFF)
 option(DD4HEP_DISABLE_PACKAGES  "Selectively disable DD4HEP sub-packages [Separate multiples by space]"  OFF)
+OPTION(BUILD_DDEVE              "Build DDEve component" ON)
 option(BUILD_TESTING            "Enable and build tests"                        ON)
 option(BUILD_SHARED_LIBS        "If OFF build STATIC Libraries"                 ON)
 option(DD4HEP_SET_RPATH         "Link libraries with built-in RPATH (run-time search path)" ON)
@@ -87,8 +88,16 @@ option(DD4HEP_RELAX_PYVER       "Do not require exact python version match with 
 OPTION(DD4HEP_BUILD_EXAMPLES    "Build all the examples"                        OFF)
 OPTION(DD4HEP_DEBUG_CMAKE       "Print debugging information for DD4hep CMAKE"  OFF)
 #
-SET(DD4HEP_BUILD_PACKAGES "DDRec DDDetectors DDCond DDAlign DDCAD DDDigi DDG4 DDEve UtilityApps"
+
+SET(DD4HEP_BUILD_PACKAGES "DDRec DDDetectors DDCond DDAlign DDCAD DDDigi DDG4 UtilityApps"
     CACHE STRING "List of DD4hep packages to build")
+
+IF(BUILD_DDEVE)
+  SET(DD4HEP_BUILD_PACKAGES "${DD4HEP_BUILD_PACKAGES} DDEve")
+ELSE()
+  MESSAGE(STATUS "Not building DDEve")
+ENDIF()
+
 #
 SEPARATE_ARGUMENTS(DD4HEP_BUILD_PACKAGES)
 IF( DD4HEP_DISABLE )
@@ -136,12 +145,7 @@ dd4hep_configure_output( OUTPUT "${PROJECT_BINARY_DIR}" INSTALL "${CMAKE_INSTALL
 # Configure ROOT
 find_package (ROOT 6.08 REQUIRED CONFIG)
 DD4HEP_SETUP_ROOT_TARGETS()
-# ROOT no longer finds nlohmann_json unless we ask for the ROOTEve component, so we ask
-# for the ROOTEve component if the ROOTEve component exists.
-# DDEve and one executable in UtilityApps depend on this
-if(TARGET ROOT::ROOTEve)
-  find_package (ROOT REQUIRED COMPONENTS ROOTEve CONFIG)
-endif()
+find_package (ROOT REQUIRED COMPONENTS CONFIG)
 
 # Configure BOOST
 find_package(Boost 1.49 REQUIRED)
